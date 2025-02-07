@@ -12,7 +12,7 @@ PKG_BUILD_DEPENDS:=golang/host
 PKG_BUILD_PARALLEL:=1
 PKG_USE_MIPS16:=0
 
-GO_PKG:=github.com/OpenTollgate/tollgate-updater
+GO_PKG:=https://github.com/OpenTollGate/tollgate-updater.git
 GO_PKG_BUILD_PKG:=$(GO_PKG)
 
 include $(INCLUDE_DIR)/package.mk
