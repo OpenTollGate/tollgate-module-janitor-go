@@ -28,7 +28,7 @@ func getVersionInfo() string {
 }
 
 func main() {
-	fmt.Println("hello world 3")
+	fmt.Println("hello world 4")
 
 	// Add a version flag
 	versionFlag := flag.Bool("version", false, "Print version information")
