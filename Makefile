@@ -37,7 +37,7 @@ endef
 
 define Package/$(PKG_NAME)/install
        $(INSTALL_DIR) $(1)/usr/bin
-       $(INSTALL_BIN) $(GO_PKG_BUILD_BIN_DIR)/tollgate-updater $(1)/usr/bin/tg-updater
+       $(INSTALL_BIN) $(GO_PKG_BUILD_BIN_DIR)/tollgate-updater $(1)/usr/bin/tollgate-updater
 endef
 
 $(eval $(call GoBinPackage,$(PKG_NAME)))
