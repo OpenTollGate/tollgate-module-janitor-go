@@ -1,8 +1,22 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=tollgate-module-updater-go
-PKG_VERSION:=0.0.2
-PKG_RELEASE:=2
+
+# Dynamic version generation
+define Package/$(PKG_NAME)/GetGitInfo
+    cd $(CURDIR) && \
+    PKG_BRANCH=$$(git rev-parse --abbrev-ref HEAD 2>/dev/null || echo "main") && \
+    PKG_COMMITS=$$(git rev-list --count HEAD 2>/dev/null || echo "1") && \
+    PKG_SHORT_COMMIT=$$(git rev-parse --short HEAD 2>/dev/null || echo "unknown") && \
+    if [ "$$PKG_BRANCH" = "main" ] || [ "$$PKG_BRANCH" = "master" ]; then \
+        echo "0.$$PKG_COMMITS" ; \
+    else \
+        echo "0.$$PKG_COMMITS-$$PKG_BRANCH" ; \
+    fi
+endef
+
+PKG_VERSION:=$(shell $(call Package/$(PKG_NAME)/GetGitInfo))
+PKG_RELEASE:=$(shell cd $(CURDIR) 2>/dev/null && git rev-parse --short HEAD 2>/dev/null || echo "1")
 
 PKG_MAINTAINER:=Your Name <your@email.com>
 PKG_LICENSE:=CC0-1.0
