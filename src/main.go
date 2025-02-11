@@ -1,14 +1,15 @@
 package main
 
 import (
+    "flag"
     "fmt"
     "runtime/debug"
 )
 
 var (
-    Version   string
+    Version    string
     CommitHash string
-    BuildTime string
+    BuildTime  string
 )
 
 func getVersionInfo() string {
