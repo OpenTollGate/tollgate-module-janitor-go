@@ -76,7 +76,7 @@ endef
 
 define Package/$(PKG_NAME)/install
 	$(INSTALL_DIR) $(1)/usr/bin
-	$(INSTALL_BIN) $(GO_PKG_BUILD_BIN_DIR)/tollgate-janitor $(1)/usr/bin/tollgate-janitor
+	$(INSTALL_BIN) $(PKG_BUILD_DIR)/tollgate-janitor $(1)/usr/bin/tollgate-janitor
 endef
 
 $(eval $(call BuildPackage,$(PKG_NAME)))
