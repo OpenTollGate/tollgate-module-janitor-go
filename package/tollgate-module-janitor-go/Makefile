@@ -1,6 +1,6 @@
 include $(TOPDIR)/rules.mk
 
-PKG_NAME:=tollgate-module-updater-go
+PKG_NAME:=tollgate-module-janitor-go
 PKG_VERSION:=$(shell git rev-list --count HEAD 2>/dev/null || echo "0.0.1").$(shell git rev-parse --short HEAD 2>/dev/null || echo "unknown")
 PKG_RELEASE:=1
 
@@ -8,7 +8,7 @@ PKG_RELEASE:=1
 ifneq ($(TOPDIR),)
 	# Feed-specific settings (auto-clone from git)
 	PKG_SOURCE_PROTO:=git
-	PKG_SOURCE_URL:=https://github.com/OpenTollGate/tollgate-module-updater-go.git
+	PKG_SOURCE_URL:=https://github.com/OpenTollGate/tollgate-module-janitor-go.git
 	PKG_SOURCE_VERSION:=main
 	PKG_MIRROR_HASH:=skip
 else
@@ -24,7 +24,7 @@ PKG_BUILD_DEPENDS:=golang/host
 PKG_BUILD_PARALLEL:=1
 PKG_USE_MIPS16:=0
 
-GO_PKG:=github.com/OpenTollGate/tollgate-module-updater-go
+GO_PKG:=github.com/OpenTollGate/tollgate-module-janitor-go
 
 include $(INCLUDE_DIR)/package.mk
 include $(TOPDIR)/package/lang/golang-package.mk
@@ -32,12 +32,12 @@ include $(TOPDIR)/package/lang/golang-package.mk
 define Package/$(PKG_NAME)
 	SECTION:=net
 	CATEGORY:=Network
-	TITLE:=TollGate Updater Module
+	TITLE:=TollGate Janitor Module
 	DEPENDS:=$(GO_ARCH_DEPENDS)
 endef
 
 define Package/$(PKG_NAME)/description
-	TollGate Updater Module for OpenWrt
+	TollGate Janitor Module for OpenWrt
 endef
 
 define Build/Prepare
@@ -51,8 +51,8 @@ define Build/Prepare
 	# Clean up Go module cache if needed
 	cd $(PKG_BUILD_DIR) && \
 	rm -f go.mod go.sum && \
-	go mod init tollgate-module-updater-go && \
-	go mod edit -replace github.com/OpenTollgate/updater=./ && \
+	go mod init tollgate-module-janitor-go && \
+	go mod edit -replace github.com/OpenTollgate/janitor=./ && \
 	go mod tidy && \
 	go get github.com/fiatjaf/khatru && \
 	go get github.com/nbd-wtf/go-nostr
@@ -71,12 +71,12 @@ define Build/Compile
 		-X main.Version=$(PKG_VERSION) \
 		-X main.CommitHash=$(PKG_RELEASE) \
 		-X main.BuildTime=$(shell date -u '+%Y-%m-%d_%I:%M:%S%p')" \
-		-o $(PKG_BUILD_DIR)/tollgate-updater main.go
+		-o $(PKG_BUILD_DIR)/tollgate-janitor main.go
 endef
 
 define Package/$(PKG_NAME)/install
 	$(INSTALL_DIR) $(1)/usr/bin
-	$(INSTALL_BIN) $(GO_PKG_BUILD_BIN_DIR)/tollgate-updater $(1)/usr/bin/tollgate-updater
+	$(INSTALL_BIN) $(GO_PKG_BUILD_BIN_DIR)/tollgate-janitor $(1)/usr/bin/tollgate-janitor
 endef
 
 $(eval $(call BuildPackage,$(PKG_NAME)))
