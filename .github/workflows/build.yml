@@ -5,7 +5,6 @@ on:
   pull_request:
     branches: [ "main" ]
 
-
 jobs:
   build-binary:
     runs-on: ubuntu-latest
@@ -101,32 +100,13 @@ jobs:
     steps:
       - uses: actions/checkout@v3
 
-      # Download prebuilt golang packages
-      - name: Download Prebuilt Golang
-        uses: dawidd6/action-download-artifact@v2
-        with:
-          workflow: prebuild-golang.yml
-          workflow_conclusion: success
-          name: golang-${{ matrix.target.model }}-${{ matrix.target.platform }}-${{ matrix.target.subtarget }}
-          path: prebuilt/
-          repo: OpenTollGate/tollgate-sdk
-          
-      - name: Find Golang Package
-        id: find_golang
-        run: |
-          GOLANG_IPK=$(find prebuilt -name "golang*.ipk" | head -n 1)
-          echo "Found golang package: $GOLANG_IPK"
-          echo "golang_ipk=$GOLANG_IPK" >> $GITHUB_OUTPUT
-
       - name: Build OpenWRT Package
         id: build_package
-        uses: OpenTollGate/tollgate-sdk@main
+        uses: OpenTollGate/tollgate-sdk@add-all-go-modules
         with:
+          packageName: 'tollgate-module-janitor-go'
+          makeFilePath: './package/tollgate-module-janitor-go/Makefile'
           model: ${{ matrix.target.model }}
-          platform: ${{ matrix.target.platform }}
-          subtarget: ${{ matrix.target.subtarget }}
-          module: tollgate-module-${{ matrix.target.name }}-go
-          prebuilt_golang: ${{ steps.find_golang.outputs.golang_ipk }}
 
       - name: Debug output
         run: |
@@ -138,7 +118,7 @@ jobs:
         uses: c03rad0r/upload-blossom-action@pr/using-nsec-argument-correct-state
         with:
           host: "https://blossom.swissdash.site"
-          filePath: ${{ env.PACKAGE_FULLPATH }}
+          filePath: ${{ steps.build_package.outputs.package_path }}
           nostrPrivateKey: ${{ secrets.NSEC }}
 
       - name: Publish Package NIP-94 Metadata
@@ -172,7 +152,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: package-${{ matrix.target.model }}
-          path: ${{ env.PACKAGE_FULLPATH }}
+          path: ${{ steps.build_package.outputs.package_path }}
           retention-days: 5
 
       - name: Build Summary
