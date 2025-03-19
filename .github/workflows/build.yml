@@ -140,7 +140,7 @@ jobs:
         uses: c03rad0r/upload-blossom-action@pr/using-nsec-argument-correct-state
         with:
           host: "https://blossom.swissdash.site"
-          filePath: ${{ steps.build_package.outputs.package_path }}
+          filePath: ${{ env.PACKAGE_FULLPATH }}
           nostrPrivateKey: ${{ secrets.NSEC }}
 
       - name: Publish Package NIP-94 Metadata
