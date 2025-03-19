@@ -122,70 +122,72 @@ jobs:
 
       - name: Build OpenWRT Package
         id: build_package
-        uses: OpenTollGate/tollgate-sdk@add-all-go-modules
+        uses: OpenTollGate/tollgate-sdk@main
         with:
-          packageName: 'tollgate-module-janitor-go'
-          makeFilePath: './package/tollgate-module-janitor-go/Makefile'
           model: ${{ matrix.target.model }}
+          platform: ${{ matrix.target.platform }}
+          subtarget: ${{ matrix.target.subtarget }}
+          module: tollgate-module-janitor-go
+          prebuilt_golang: ${{ steps.find_golang.outputs.golang_ipk }}
 
-      - name: Debug output
-        run: |
-          echo "Attempting to list built package:"
-          ls -R /tmp/openwrt-sdk/openwrt-sdk-*/bin/packages
+      # - name: Debug output
+      #   run: |
+      #     echo "Attempting to list built package:"
+      #     ls -R /tmp/openwrt-sdk/openwrt-sdk-*/bin/packages
 
-      - name: Upload Package to Blossom
-        id: upload_package
-        uses: c03rad0r/upload-blossom-action@pr/using-nsec-argument-correct-state
-        with:
-          host: "https://blossom.swissdash.site"
-          filePath: ${{ steps.build_package.outputs.package_path }}
-          nostrPrivateKey: ${{ secrets.NSEC }}
+      # - name: Upload Package to Blossom
+      #   id: upload_package
+      #   uses: c03rad0r/upload-blossom-action@pr/using-nsec-argument-correct-state
+      #   with:
+      #     host: "https://blossom.swissdash.site"
+      #     filePath: ${{ steps.build_package.outputs.package_path }}
+      #     nostrPrivateKey: ${{ secrets.NSEC }}
 
-      - name: Publish Package NIP-94 Metadata
-        id: publish_package
-        uses: OpenTollGate/nostr-publish-file-metadata-action/python@main
-        with:
-          relays: wss://relay.damus.io,wss://nos.lol,wss://nostr.mom/
-          url: ${{ steps.upload_package.outputs.blossomUrl }}
-          mimeType: application/x-opkg
-          fileHash: ${{ steps.upload_package.outputs.blossomHash }}
-          originalHash: ${{ steps.upload_package.outputs.blossomHash }}
-          content: "TollGate Module Relay OpenWRT package for ${{ matrix.target.model }}"
-          nsec: ${{ secrets.NSEC }}
-          size: ${{ steps.upload_package.outputs.size }}
-          architecture: ${{ env.PLATFORM }}
+      # - name: Publish Package NIP-94 Metadata
+      #   id: publish_package
+      #   uses: OpenTollGate/nostr-publish-file-metadata-action/python@main
+      #   with:
+      #     relays: wss://relay.damus.io,wss://nos.lol,wss://nostr.mom/
+      #     url: ${{ steps.upload_package.outputs.blossomUrl }}
+      #     mimeType: application/x-opkg
+      #     fileHash: ${{ steps.upload_package.outputs.blossomHash }}
+      #     originalHash: ${{ steps.upload_package.outputs.blossomHash }}
+      #     content: "TollGate Module Relay OpenWRT package for ${{ matrix.target.model }}"
+      #     nsec: ${{ secrets.NSEC }}
+      #     size: ${{ steps.upload_package.outputs.size }}
+      #     architecture: ${{ env.PLATFORM }}
 
-      - name: Verify Package NIP-94 Event
-        id: verify_package
-        uses: OpenTollGate/nostr-publish-file-metadata-action/python/verify@main
-        with:
-          eventId: ${{ steps.publish_package.outputs.eventId }}
-          relays: wss://relay.damus.io,wss://nos.lol,wss://nostr.mom/
+      # - name: Verify Package NIP-94 Event
+      #   id: verify_package
+      #   uses: OpenTollGate/nostr-publish-file-metadata-action/python/verify@main
+      #   with:
+      #     eventId: ${{ steps.publish_package.outputs.eventId }}
+      #     relays: wss://relay.damus.io,wss://nos.lol,wss://nostr.mom/
 
-      - name: Check Package Publication
-        if: steps.verify_package.outcome != 'success'
-        run: |
-          echo "❌ Failed to verify package publication on relays"
-          exit 1
+      # - name: Check Package Publication
+      #   if: steps.verify_package.outcome != 'success'
+      #   run: |
+      #     echo "❌ Failed to verify package publication on relays"
+      #     exit 1
 
-      - name: Upload Package Artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: package-${{ matrix.target.model }}
-          path: ${{ steps.build_package.outputs.package_path }}
-          retention-days: 5
+      # - name: Upload Package Artifact
+      #   uses: actions/upload-artifact@v4
+      #   with:
+      #     name: package-${{ matrix.target.model }}
+      #     path: ${{ steps.build_package.outputs.package_path }}
+      #     retention-days: 5
 
-      - name: Build Summary
-        run: |
-          echo "Build Summary for ${{ matrix.target.name }}:"
-          echo "✅ Binary successfully built and published"
-          echo "✅ Package successfully built and published"
-          echo "Binary URL: ${{ steps.upload_binary.outputs.blossomUrl }}"
-          echo "Package URL: ${{ steps.upload_package.outputs.blossomUrl }}"
+      # - name: Build Summary
+      #   run: |
+      #     echo "Build Summary for ${{ matrix.target.name }}:"
+      #     echo "✅ Binary successfully built and published"
+      #     echo "✅ Package successfully built and published"
+      #     echo "Binary URL: ${{ steps.upload_binary.outputs.blossomUrl }}"
+      #     echo "Package URL: ${{ steps.upload_package.outputs.blossomUrl }}"
 
-      - name: Trigger OS Workflow
-        uses: peter-evans/repository-dispatch@v2
-        with:
-          token: ${{ secrets.REPO_ACCESS_TOKEN }}
-          repository: OpenTollGate/tollgate-os
-          event-type: update-release-json
+      # - name: Trigger OS Workflow
+      #   uses: peter-evans/repository-dispatch@v2
+      #   with:
+      #     token: ${{ secrets.REPO_ACCESS_TOKEN }}
+      #     repository: OpenTollGate/tollgate-os
+      #     event-type: update-release-json
