@@ -75,6 +75,7 @@ define Build/Compile
 	GOWORK=off \
 	go mod tidy && \
 	go mod vendor && \
+	GODEBUG=netdns=go+1 \
 	go build -v -x -mod=vendor -trimpath \
 		-tags netgo,osusergo \
 		-ldflags "-s -w -extldflags '-static' \
