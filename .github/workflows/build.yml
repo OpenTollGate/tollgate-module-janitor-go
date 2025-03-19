@@ -4,6 +4,9 @@ on:
   push:
   pull_request:
     branches: [ "main" ]
+  workflow_dispatch:
+  schedule:
+    - cron: '0 0 * * *'  # Run at midnight UTC every day
 
 jobs:
   build-binary:
@@ -99,6 +102,23 @@ jobs:
       fail-fast: false
     steps:
       - uses: actions/checkout@v3
+
+      # Download prebuilt golang packages
+      - name: Download Prebuilt Golang
+        uses: dawidd6/action-download-artifact@v2
+        with:
+          workflow: prebuild-golang.yml
+          workflow_conclusion: success
+          name: golang-${{ matrix.target.model }}-${{ matrix.target.platform }}-${{ matrix.target.subtarget }}
+          path: prebuilt/
+          repo: OpenTollGate/tollgate-sdk
+          
+      - name: Find Golang Package
+        id: find_golang
+        run: |
+          GOLANG_IPK=$(find prebuilt -name "golang*.ipk" | head -n 1)
+          echo "Found golang package: $GOLANG_IPK"
+          echo "golang_ipk=$GOLANG_IPK" >> $GITHUB_OUTPUT
 
       - name: Build OpenWRT Package
         id: build_package
